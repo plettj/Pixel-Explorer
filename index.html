@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pixel Expedition</title>
+		<link rel="icon" href="favicon.png">
+		<link rel="stylesheet" href="style.css">
+  </head>
+	<div id="Controls">
+		<div id="X" onclick="showControls(false)">X</div>
+		<h1 id="Control_Title">Controls</h1>
+		<br><br><br><br>
+		<td class="Cont_Dat">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Right-click on elements of the game to find information.</td>
+		<br><br>
+		<td class="Cont_Dat">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The explorer moves by one cell at a time; no half-cells.</td>
+		<br><br>
+		<table>
+			<tr class="Cont_Row">
+				<td><img src="cont1.png" class="Cont_Img"></td><td class="Cont_Dat">This is the explorer! You can control him using your arrow keys, or WASD. He moves 1 square at a time and he can't jump, but he can fall up to 3 blocks, among other things (see below).</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont2.png" class="Cont_Img"></td><td class="Cont_Dat">The explorer can climb ladders using the vertical arrow keys. Note: If both a horizontal and a vertical key are pressed, vertical will take priority.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont3.png" class="Cont_Img"></td><td class="Cont_Dat">Levers can be pushed by the explorer; all you have to do is stand over them and press the space bar. They cause shifting blocks to move.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont4.png" class="Cont_Img"></td><td class="Cont_Dat">This is a shifting block. It will travel along its track when its corresponding lever is pushed.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont5.png" class="Cont_Img"></td><td class="Cont_Dat">Crates can be pushed horizontally by the explorer, or by shifting blocks, and carried vertically by shifting blocks. They can be crushed against the outside wall or between shifting blocks, but they will respawn.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont6.png" class="Cont_Img"></td><td class="Cont_Dat">To collect a key, the explorer must move to the same square as it, and it will be collected automatically. Keys are purely bonus items, with no strategic purpose.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont7.png" class="Cont_Img"></td><td class="Cont_Dat">When something heavy is on top of pressure plates, they will move down, taking their corresponding spikes with them.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont8.png" class="Cont_Img"></td><td class="Cont_Dat">Don't touch Fireballs! Although they move predictably, they will kill you. When they come to the top or bottom of a ladder, they will climb it, and they will turn when they bump a wall or come to the edge of a platform.</td>
+			</tr>
+			<tr class="Cont_Row">
+				<td><img src="cont9.png" class="Cont_Img"></td><td class="Cont_Dat">Torches act as permanent pressure plates; once they are lit, their corresponding spikes will lower forever.</td>
+			</tr>
+		</table>
+		<br>
+		<td class="Cont_Dat">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fireballs will travel through crates that are moving.</td>
+		<br><br>
+		<td class="Cont_Dat">&nbsp;&nbsp;Fireballs can't go through spikes, but crates are unaffected by them.</td>
+		<br><br>
+	</div>
+	<div id="Title_Screen">
+		<img id="Title_Image" src="title.png">
+		<div id="Controls_Button" class="button" onclick="showControls(true)">Controls</div>
+		<div id="Play" class="button" onclick="startGame()">Play</div>
+	</div>
+	<div id="Dialogue"></div>
+	<div id="Keys"><img src="key.png" style="margin-top: calc(var(--pixel) * -1); width: calc(var(--pixel) * 10); height: calc(var(--pixel) * 10);">x&thinsp;0</div></div>
+	<div id="Stage">Stage 1</div>
+	<div id="Pause">
+	</div>
+	<div id="Menu">
+		<p style="text-align: center; font-size: calc(var(--pixel) * 10); padding: calc(var(--pixel) * 2); margin-left: calc(var(--pixel) * -8);">Game Paused</p>
+		<br><br>
+		<p id="LastSaved" style="text-align: center; font-size: calc(var(--pixel) * 4); width: 100%;">Last saved at Stage 1</p>
+		<div id="Resume" class="button">Resume</div>
+		<div id="Restart" class="button">Restart Stage 1</div>
+		<div id="DeleteSave" class="button">Delete Save</div>
+		<div id="FullRestart" class="button">Full Restart</div>
+		<div id="Cont_Access" class="button" onclick="showControls(true)">Controls</div>
+		<div id="Stats"><p id="Attempts">Attempts: 1</p></div>
+	</div>
+	<div id="Info">
+	</div>
+	<canvas id="CursorCanvas"></canvas>
+	<canvas id="EnemyCanvas"></canvas>
+	<canvas id="CrateCanvas"></canvas>
+	<canvas id="AvatarCanvas"></canvas>
+	<canvas id="TrackCanvas"></canvas>
+	<canvas id="MapCanvas"></canvas>
+	<canvas id="ItemCanvas"></canvas>
+	<div id="BackgroundImage"></div>
+	<script src="script.js"></script>
+</html>
