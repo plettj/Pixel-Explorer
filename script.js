@@ -1,5 +1,6 @@
 // Basic run-down of the game and it's functions
- // this is an edit we will see on github soon
+
+// Screen stuff and canvas initializations
 var unit = Math.floor(window.innerHeight / 72) * 8;
 document.body.style.setProperty("--unit", unit + "px");
 document.body.style.setProperty("--pixel", unit / 16 + "px");
@@ -33,14 +34,17 @@ M.width = unit * 16;
 M.height = unit * totalHeight;
 var mctx = M.getContext('2d');
 
+// Important global variables
 var raf;
 var paused = true;
 var step = 0;
 var game_on = false;
-var controlsOpen = false; // lol last-minute add-on haha
+var controlsOpen = false; // last-minute add-on
+
+// localStorage save system
 var saves = [0, false, 1, "00000"] // [bestStage, torchLit, attempts, collKeys]
 if (typeof(Storage) !== "undefined") {
-  // store & update
+    // Web store & updates
 	var bestStage = localStorage.getItem('bestStage');
 	console.log("Starting on stage " + (parseInt(bestStage) + 1));
 	saves[0] = bestStage ? parseInt(bestStage) : 0;
@@ -55,9 +59,10 @@ if (typeof(Storage) !== "undefined") {
 	localStorage.setItem('attempts', saves[2]);
 	localStorage.setItem('collKeys', saves[3]);
 } else {
-  alert("Note: The game will not be saved if the browser closes or reloads because this browser does not support local storage. If you would like saving to work, try Google Chrome, or Microsoft Edge.");
+  alert("Note: The game will not be saved if the browser closes or reloads because this browser does not support local storage. If you would like to save your progress, try Google Chrome.");
 }
 
+// Event handlers
 document.addEventListener("mousemove", function(event) {
 	cursor.update([event.pageX - (window.innerWidth / 2 - unit * 8), event.pageY - (window.innerHeight / 2 - unit * 4.5)]);
 });
@@ -74,6 +79,7 @@ document.addEventListener("keyup", function(event) {
 	keyPressed(event.keyCode, 0);
 });
 
+// Event processor!
 function keyPressed(code, num) {
 	if (code > 36 && code < 41) avatar.keys[code - 37] = num;
 	else if (code === 65) avatar.keys[0] = num;
@@ -84,6 +90,7 @@ function keyPressed(code, num) {
 	//else if (code === 82 && num) map.startStage(map.bestStage);
 }
 
+// Image initializations
 var avImg = new Image();
 avImg.src = "avatar.png";
 
@@ -105,12 +112,14 @@ crushImg.src = "crush.png";
 var trackImg = new Image();
 trackImg.src = "tracks.png";
 
+// An eraser function: essential to all canvas animation!
 function clear(context, coor, x = 0, y = 0, crush) {
   if (!coor) context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 	else if (!crush) context.clearRect(unit * coor[0] + x, unit * coor[1] + y, unit, unit);
 	else context.clearRect(unit * coor[0] + x - unit / 2, unit * coor[1] + y - unit / 2, unit * 2, unit * 2);
 }
 
+// A menu object, for simpler navigation functionality
 var menu = {
 	menu: document.getElementById("Menu"),
 	keys: document.getElementById("Keys"),
@@ -186,6 +195,7 @@ var menu = {
 	}
 }
 
+// Right-click on anything for info displayed by this object
 var info = {
 	displayed: false,
 	co: [0, 0],
@@ -208,6 +218,8 @@ var info = {
 	}
 }
 
+// The format of this function is odd because it was originally designed
+// for the grapple-hook design
 function space() {
 	if (info.displayed) info.hide();
 	if (menu.showingDialogue) menu.showD(0, true);
@@ -232,6 +244,8 @@ function deleteSave() {
 	document.getElementById("LastSaved").innerHTML = "Last saved at Stage 1";
 }
 
+// Designed for the earlier cursor-controlled system;
+// later used for the right-click info menus
 var cursor = {
 	coor: [0, 0],
 	type: -1, // 0-black 1-green 2-square
@@ -305,12 +319,13 @@ var cursor = {
 	}
 }
 
+// Character with actions and animations
 var avatar = {
 	coor: [0, 0],
 	ox: 0,
 	oy: 0,
 	vy: 0,
-	action: 0, // 0-stopped 1-left 2-up 3-right 4-down 5-fall 6-pull 7-unlock 8-collect 9 - die
+	action: 0, // 0-stopped 1-left 2-up 3-right 4-down 5-fall 6-pull 7-unlock 8-collect 9-die
 	dir: 0, // 0-right 1-left
 	moving: false,
 	keys: [0, 0, 0, 0], // left up right down
@@ -368,6 +383,8 @@ var avatar = {
 			}
 		}
 	},
+// The below function is more complicated then you would think it needs to be
+// because it takes care of both the physics and the various animation
 	move: function (action, pushing, canPush) {
 		if (!this.spawned) return;
 		this.moving = true;
@@ -451,7 +468,8 @@ var avatar = {
 					ch.locked = false;
 					ch.draw();
 					this.keyCount--;
-					// REMEMBER!!: below line needs work; currently all keys would disappear.
+                    // REMEMBER!!: below line needs work; currently all keys would disappear.
+                    // I forgot. It's ok. I didn't implement this idea.
 					this.inventDOM.innerHTML = '<img src="key.png" style="margin-top: calc(var(--pixel) * -1); width: calc(var(--pixel) * 10); height: calc(var(--pixel) * 10);">x&thinsp;' + this.keyCount;
 				} else if (this.vy === 32) {this.end(0, 0); return;}
 				break;
@@ -522,7 +540,7 @@ var avatar = {
 		return true;
 	},
 	reset: function (coor) {
-		// gotta do death animation
+		// do death animation
 		var av = this;
 		av.spawned = false;
 		av.coor = coor.map(x => x);
@@ -532,9 +550,11 @@ var avatar = {
 	}
 }
 
+// This was a very large part of the project (~60 hours), and
+// every part of it was thought through very intentionally
 var map = {
 	top: 68,
-	data: [ // a live world map -- apart from avatar.
+	data: [ // a live world map --- apart from avatar.
 		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -643,7 +663,7 @@ var map = {
 	currentHeight: 0,
 	bestStage: 0,
 	respawnRate: 10000, // milliseconds
-	draw: function () {
+	draw: function () { // Draws the entire map, including all the accessories like shifting blocks, torches, and fireballs
 		document.body.style.setProperty("--top", this.top);
 		for (var y = 0; y < this.data.length; y++) {
 			for (var x = 0; x < this.data[y].length; x++) {
@@ -679,7 +699,7 @@ var map = {
 		}
 		this.moving = 0;
 	},
-	get: function (type, coor, sw) {
+	get: function (type, coor, sw) { // a logical function for retrieving the objects present at certain coordinates
 		var toReturn = false;
 		switch (type) {
 			case 0: // track end/start point
@@ -714,7 +734,7 @@ var map = {
 		}
 		return toReturn;
 	},
-	update: function ([x, y], value, a, switching) {
+	update: function ([x, y], value, a, switching) { // draw any part of the map that changes onto the screen (oh no there's a lot)
 		if (value !== -1) this.data[y][x] = value;
 		if (!a) var a = [3000, 3000, 304, 304, 0, 0, 1, 1, terrain];
 		clear(mctx, [x, y]);
@@ -750,7 +770,7 @@ var map = {
 		}
 		mctx.drawImage(a[8], a[0], a[1], a[2], a[3], x * unit + a[4], y * unit + a[5], unit / a[6], unit / a[7]);
 	},
-	newHeight: function (y, dir) {
+	newHeight: function (y, dir) { // complete a stage
 		if (dir === -1) { // av moved up
 			if (this.stages[this.currentHeight] > y) this.currentHeight++;
 		} else if (this.currentHeight > 0) { // av moved down
@@ -759,7 +779,7 @@ var map = {
 		this.top = this.stages[this.currentHeight];
 		document.body.style.setProperty("--top", this.top);
 	},
-	switch: function (i, v) {
+	switch: function (i, v) { // pull a lever
 		if (this.switches[i] === v) return;
 		this.switches[i] = v;
 		this.movingSI = i;
@@ -829,10 +849,11 @@ var map = {
 	}
 }
 
+// One of my favourite enemies to program: I love the movement system
 function Fireball(coor) {
 	this.start = coor;
 	this.coor = coor.map(x => x);
-	this.jumped = false; // so he won't jump more than once LOL
+	this.jumped = false; // so he won't jump more than once: LOL
 	this.offset = [0, 0];
 	this.jInfo = [unit / 12, 0, 0, true]; // [vy, tempDir, xToMove, first]
 	this.dir = 0; // 0-right 1-left
@@ -843,7 +864,7 @@ function Fireball(coor) {
 		ectx.drawImage(fireImg, (step % 4) * 304, this.dir * 304, 304, 304, this.coor[0] * unit + this.offset[0], this.coor[1] * unit + this.offset[1], unit, unit);
 	};
 	this.try = function (repeat) {
-		// COMPLICATED STUFF
+		// COMPLICATED STUFF TO CONTROL THE ENEMIE'S INTELLIGENT MOVIE
 		var f = this;
 		if (map.moving && !f.jumped && f.action % 2) {
 			var on = map.get(1, [f.coor[0], f.coor[1] + 1], map.movingSI);
@@ -967,8 +988,9 @@ function Fireball(coor) {
 	}
 }
 
+// Pressure plate to control spikes
 function Plate(coor, spikes) {
-	this.down = 0; // counts up to 10 to be down... for delay of animation
+	this.down = 0; // counts up to 10 to be down... for smooth animation
 	this.spikes = spikes;
 	this.coor = coor;
 	this.draw = function (halfway) {
@@ -1029,6 +1051,7 @@ function Plate(coor, spikes) {
 	}
 }
 
+// Levers and shifting blocks, on tracks [very complicated]
 function Track(coor, track, dest) {
 	this.start = coor.map(x => x);
 	this.final = dest.map(x => x);
@@ -1165,6 +1188,7 @@ function Track(coor, track, dest) {
 	}
 }
 
+// Pushable, shiftable, squashable crate [hardest part of this whole project]
 function Crate(coor, behind = 0) {
 	this.original = coor;
 	this.coor = coor.map(x => x);
@@ -1339,6 +1363,7 @@ function Crate(coor, behind = 0) {
 	};
 }
 
+// Collectable
 function Key(coor) {
 	this.coor = coor;
 	this.collected = false;
@@ -1365,6 +1390,7 @@ function Key(coor) {
 	};
 }
 
+// To be lit by fireballs, to lower the fiery spikes
 function Torch(coor, spikes) {
 	this.lit = false;
 	this.spikes = spikes;
@@ -1417,6 +1443,7 @@ function Torch(coor, spikes) {
 	};
 }
 
+// To control the monotonous bobbing of the characters
 function pixelAnimate() {
 	if (!paused) {
 		step++;
@@ -1426,6 +1453,7 @@ function pixelAnimate() {
 	setTimeout(pixelAnimate, 250);
 }
 
+// To run actual frame-by-frame animation
 function animate() {
 	if (!paused) {
 		avatar.act();
@@ -1484,4 +1512,4 @@ function showControls(show) {
 	}
 }
 
-document.addEventListener('contextmenu', function(e) {e.preventDefault();}, false);
+document.addEventListener('contextmenu', function(e) {e.preventDefault();}, false); // don't right click :)
